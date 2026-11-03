@@ -59,8 +59,22 @@ upgrade-fail: "chat"
 upgrade-sound: "ENTITY_PLAYER_LEVELUP"
 
 database:
-  # Can be H2 (SqLite support is planned)
+  # H2 or MySQL (MariaDB works too)
   type: "H2"
+
+  # MySQL only
+  address: "localhost"
+  port: 3306
+  database: "axminions"
+  username: "root"
+  password: ""
+  ssl: false
+  pool-size: 10
+  # MySQL with several servers (sectors) sharing one database: a UNIQUE name of this server, e.g. the sector name.
+  # Every server only loads and saves its own minions - worlds with the same name on different sectors
+  # (e.g. "oneblock") would otherwise load each other's minions. Never use one name on two servers!
+  # Changing it later makes the minions saved under the old name invisible.
+  server-id: ""
 
 hooks:
   # Supported stacker plugins: WildStacker, RoseStacker, none
@@ -134,4 +148,4 @@ gui:
 debug: false
 
 # Do not change!
-config-version: 10
+config-version: 11

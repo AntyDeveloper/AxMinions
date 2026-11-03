@@ -162,6 +162,7 @@ allprojects {
 shadowJar {
     relocate("com.artillexstudios.axapi", "com.artillexstudios.axminions.libs.axapi")
     relocate("org.h2", "com.artillexstudios.axminions.libs.h2")
+    relocate("com.mysql", "com.artillexstudios.axminions.libs.mysql")
     relocate("org.jetbrains.kotlin", "com.artillexstudios.axminions.libs.kotlin")
     relocate("com.zaxxer", "com.artillexstudios.axminions.libs.hikaricp")
     relocate("org.bstats", "com.artillexstudios.axminions.libs.bstats")

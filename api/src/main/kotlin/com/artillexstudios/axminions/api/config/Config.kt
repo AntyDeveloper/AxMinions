@@ -37,6 +37,22 @@ class Config(file: File, stream: InputStream) {
         @JvmStatic
         fun DATABASE_TYPE() = AxMinionsAPI.INSTANCE.getConfig().get("database.type", "H2")
         @JvmStatic
+        fun DATABASE_ADDRESS() = AxMinionsAPI.INSTANCE.getConfig().get("database.address", "localhost")
+        @JvmStatic
+        fun DATABASE_PORT() = AxMinionsAPI.INSTANCE.getConfig().get("database.port", 3306)
+        @JvmStatic
+        fun DATABASE_NAME() = AxMinionsAPI.INSTANCE.getConfig().get("database.database", "axminions")
+        @JvmStatic
+        fun DATABASE_USERNAME() = AxMinionsAPI.INSTANCE.getConfig().get("database.username", "root")
+        @JvmStatic
+        fun DATABASE_PASSWORD() = AxMinionsAPI.INSTANCE.getConfig().get("database.password", "")
+        @JvmStatic
+        fun DATABASE_SSL() = AxMinionsAPI.INSTANCE.getConfig().get("database.ssl", false)
+        @JvmStatic
+        fun DATABASE_SERVER_ID() = AxMinionsAPI.INSTANCE.getConfig().get("database.server-id", "")
+        @JvmStatic
+        fun DATABASE_POOL_SIZE() = AxMinionsAPI.INSTANCE.getConfig().get("database.pool-size", 10)
+        @JvmStatic
         fun STACKER_HOOK() = AxMinionsAPI.INSTANCE.getConfig().get("hooks.stacker", "none")
         @JvmStatic
         fun ECONOMY_HOOK() = AxMinionsAPI.INSTANCE.getConfig().get("hooks.economy", "Vault")

@@ -53,8 +53,10 @@ class AxMinionsPlugin : AxPlugin() {
     override fun dependencies(manager: DependencyManagerWrapper) {
         manager.dependency("org{}jetbrains{}kotlin:kotlin-stdlib:2.3.21")
         manager.dependency("com{}h2database:h2:2.2.220")
+        manager.dependency("com{}mysql:mysql-connector-j:9.2.0")
         manager.relocate("org{}jetbrains{}kotlin", "com.artillexstudios.axminions.libs.kotlin")
         manager.relocate("org{}h2", "com.artillexstudios.axminions.libs.h2")
+        manager.relocate("com{}mysql", "com.artillexstudios.axminions.libs.mysql")
      }
 
     override fun updateFlags() {
@@ -171,6 +173,11 @@ class AxMinionsPlugin : AxPlugin() {
         if (Config.DATABASE_TYPE().equals("H2", true)) {
             dataHandler = H2DataHandler()
             dataHandler.setup()
+        } else if (Config.DATABASE_TYPE().equals("MySQL", true) || Config.DATABASE_TYPE().equals("MariaDB", true)) {
+            dataHandler = com.artillexstudios.axminions.data.MySQLDataHandler()
+            dataHandler.setup()
+        } else {
+            throw IllegalStateException("Unknown database.type '${Config.DATABASE_TYPE()}', use H2 or MySQL")
         }
     }
 }
