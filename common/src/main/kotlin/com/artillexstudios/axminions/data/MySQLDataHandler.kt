@@ -71,10 +71,17 @@ class MySQLDataHandler : DataHandler {
         }
     }
 
+    // One query for the whole world: location, linked chest and both world names come with the minion row.
+    // (Per-minion lookups were 3+ queries each, thousands of round trips to the database on every start.)
     override fun loadMinionsForWorld(minionType: MinionType, world: World) {
         query { c ->
             c.prepareStatement(
-                "SELECT m.* FROM `axminions_minions` m JOIN `axminions_locations` l ON m.`location_id` = l.`id` " +
+                "SELECT m.*, l.x AS lx, l.y AS ly, l.z AS lz, " +
+                        "cl.x AS cx, cl.y AS cy, cl.z AS cz, cw.name AS cworld " +
+                        "FROM `axminions_minions` m " +
+                        "JOIN `axminions_locations` l ON m.`location_id` = l.`id` " +
+                        "LEFT JOIN `axminions_locations` cl ON m.`chest_location_id` = cl.`id` " +
+                        "LEFT JOIN `axminions_worlds` cw ON cl.`world_id` = cw.`id` " +
                         "WHERE l.`world_id` = (SELECT `id` FROM `axminions_worlds` WHERE `name` = ?) " +
                         "AND m.`type_id` = (SELECT `id` FROM `axminions_types` WHERE `name` = ?);"
             ).use { statement ->
@@ -82,14 +89,17 @@ class MySQLDataHandler : DataHandler {
                 statement.setString(2, minionType.getName())
                 statement.executeQuery().use { rs ->
                     while (rs.next()) {
-                        val locationId = rs.getInt("location_id")
-                        val chestLocationId = rs.getInt("chest_location_id") // NULL reads as 0, like H2
                         val ownerId = UUID.fromString(rs.getString("owner_id"))
                         val tool = rs.getString("tool")
+                        val location = Location(world, rs.getInt("lx").toDouble(), rs.getInt("ly").toDouble(), rs.getInt("lz").toDouble())
 
-                        val location = getLocation(locationId) ?: continue
-                        val chestLocation = if (chestLocationId != 0) getLocation(chestLocationId) else null
-                        val itemStack = if (tool != null) Serializers.ITEM_STACK.deserialize(tool) else ItemStack(Material.AIR)
+                        // A chest of another sector's world is not loaded here, like a minion of another sector.
+                        val chestWorldName = rs.getString("cworld")
+                        val chestLocation = if (chestWorldName != null && chestWorldName.startsWith("$serverId:")) {
+                            Bukkit.getWorld(chestWorldName.removePrefix("$serverId:"))?.let {
+                                Location(it, rs.getInt("cx").toDouble(), rs.getInt("cy").toDouble(), rs.getInt("cz").toDouble())
+                            }
+                        } else null
 
                         com.artillexstudios.axminions.minions.Minion(
                             location,
@@ -97,13 +107,13 @@ class MySQLDataHandler : DataHandler {
                             Bukkit.getOfflinePlayer(ownerId),
                             minionType,
                             rs.getShort("level").toInt(),
-                            itemStack,
+                            if (tool != null) Serializers.ITEM_STACK.deserialize(tool) else ItemStack(Material.AIR),
                             chestLocation,
                             Direction.entries[rs.getByte("direction").toInt()],
                             rs.getLong("actions"),
                             rs.getDouble("storage"),
-                            locationId,
-                            chestLocationId,
+                            rs.getInt("location_id"),
+                            rs.getInt("chest_location_id"), // NULL reads as 0, like H2
                             rs.getLong("charge")
                         )
                     }
