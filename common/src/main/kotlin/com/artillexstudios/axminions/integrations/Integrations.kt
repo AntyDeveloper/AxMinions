@@ -14,6 +14,7 @@ import com.artillexstudios.axminions.integrations.prices.CMIIntegration
 import com.artillexstudios.axminions.integrations.prices.EconomyShopGUIIntegration
 import com.artillexstudios.axminions.integrations.prices.EssentialsIntegration
 import com.artillexstudios.axminions.integrations.prices.ShopGUIPlusIntegration
+import com.artillexstudios.axminions.integrations.prices.UltimateShopIntegration
 //import com.artillexstudios.axminions.integrations.prices.ZShopIntegration
 import com.artillexstudios.axminions.integrations.protection.BentoBoxIntegration
 import com.artillexstudios.axminions.integrations.protection.GriefPreventionIntegration
@@ -87,6 +88,14 @@ class Integrations : Integrations {
         }
 
         when (Config.PRICES_HOOK().lowercase(Locale.ENGLISH)) {
+            "ultimateshop" -> {
+                if (isPluginLoaded("UltimateShop")) {
+                    register(UltimateShopIntegration(AxMinionsPlugin.INSTANCE))
+                    Bukkit.getConsoleSender()
+                        .sendMessage(StringUtils.formatToString("<#33FF33>[AxMinions] Hooked into UltimateShop!"))
+                }
+            }
+
             "shopguiplus", "shopgui+" -> {
                 if (isPluginLoaded("ShopGuiPlus")) {
                     register(ShopGUIPlusIntegration())

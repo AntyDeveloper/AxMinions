@@ -11,6 +11,7 @@ softdepend:
   - EconomyShopGUI
   - Essentials
   - ShopGUIPlus
+  - UltimateShop
   - BentoBox
   - GriefPrevention
   - IridiumSkyBlock
