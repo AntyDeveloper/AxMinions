@@ -11,7 +11,7 @@ import java.io.File
 import java.util.EnumMap
 
 /**
- * Ceny skupu prosto z plikow sklepow UltimateShop (plugins/UltimateShop/shops/*.yml) - bez zadnego "ShopGUIPlus".
+ * Ceny skupu prosto z plikow sklepow UltimateShop (plugins/UltimateShop/shops, pliki yml) - bez zadnego "ShopGUIPlus".
  * Liczy tylko zwykle przedmioty vanilla (bez custom model data / nazwy / hooka) i cene w Vault, odswieza co 10 min.
  */
 class UltimateShopIntegration(private val plugin: Plugin) : PricesIntegration {
@@ -22,9 +22,16 @@ class UltimateShopIntegration(private val plugin: Plugin) : PricesIntegration {
     override fun getPrice(itemStack: ItemStack): Double {
         if (itemStack.type.isAir) return -1.0
         val meta = if (itemStack.hasItemMeta()) itemStack.itemMeta else null
-        if (meta != null && (meta.hasCustomModelData() || meta.hasItemModel() || meta.hasDisplayName())) return -1.0
+        if (meta != null && (meta.hasCustomModelData() || hasItemModel(meta) || meta.hasDisplayName())) return -1.0
         val unit = sell[itemStack.type] ?: return -1.0
         return unit * itemStack.amount
+    }
+
+    /** ItemMeta#hasItemModel istnieje dopiero od 1.21.2, a modul kompiluje sie z API 1.20.1 - wolane refleksja. */
+    private fun hasItemModel(meta: org.bukkit.inventory.meta.ItemMeta): Boolean = try {
+        meta.javaClass.getMethod("hasItemModel").invoke(meta) as? Boolean ?: false
+    } catch (e: ReflectiveOperationException) {
+        false
     }
 
     override fun register() {
