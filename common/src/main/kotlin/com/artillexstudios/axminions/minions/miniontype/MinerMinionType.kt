@@ -94,6 +94,16 @@ class MinerMinionType : MinionType("miner", AxMinionsPlugin.INSTANCE.getResource
 
         Warnings.remove(minion, Warnings.NO_TOOL)
 
+        // Mink OneBlock: blok wyspy w zasiegu ma pierwszenstwo (OneblockCore pilnuje tempa i tego, co wolno rozbic)
+        com.artillexstudios.axminions.integrations.oneblock.OneblockIslandHook.breakNear(minion.getLocation(), minion.getRange(), minion.getTool())?.let { drops ->
+            if (drops.isNotEmpty()) {
+                minion.addToContainerOrDrop(drops)
+                minion.setActions(minion.getActionAmount() + drops.sumOf { it.amount })
+                minion.damageTool()
+            }
+            return
+        }
+
         var amount = 0
         var xp = 0
         when (getConfig().getString("mode").lowercase(Locale.ENGLISH)) {
